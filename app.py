@@ -8,17 +8,16 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 
-
 def main():
     pages = {
         "Home": page_home,
-       
-        #"Carga datos":principal_datos,
-        #"Preprocesamiento": prepro,
-        #"PCA":page_pca,
-        #"Random forest":random_forest,
-        #"KNN: vecinos mas cercanos":page_knn
-        
+
+        # "Carga datos":principal_datos,
+        # "Preprocesamiento": prepro,
+        # "PCA":page_pca,
+        # "Random forest":random_forest,
+        # "KNN: vecinos mas cercanos":page_knn
+
     }
 
     # If 'page' is present, update session_state with itself to preserve
@@ -31,8 +30,7 @@ def main():
         st.session_state.update({
             # Default page
             "page": "Home",
-            })
-
+        })
 
     with st.sidebar:
         page = st.radio("Select your page", tuple(pages.keys()))
@@ -41,26 +39,25 @@ def main():
 
 
 def page_home():
-    st.title("Modelos de machine learning")
-    
+    st.title("Modelos de machine learning2")
+
     col1, col2 = st.columns(2)
 
     with col1:
         st.session_state['nombre_dataset'] = st.selectbox(
-     'Seleccionar dataset',
-     ('Iris', 'Insurance'))
+            'Seleccionar dataset',
+            ('Iris', 'Insurance'))
 
         st.write('Dataset seleccionado :', st.session_state['nombre_dataset'])
 
     with col2:
         st.session_state['nombre_variable_objetivo'] = str(st.selectbox(
-     'Seleccionar variable objetivo',
-     ('Species', 'smoker')))
+            'Seleccionar variable objetivo',
+            ('Species', 'smoker')))
 
-        st.write('Objetivo seleccionado:', st.session_state['nombre_variable_objetivo'])
+        st.write('Objetivo seleccionado:',
+                 st.session_state['nombre_variable_objetivo'])
 
-    
- 
 
 if __name__ == "__main__":
     main()
