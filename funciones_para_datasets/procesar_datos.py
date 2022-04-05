@@ -141,3 +141,24 @@ def proceso():
     datos_final.to_csv("datos_2.csv")
     st.session_state['sueldos'].to_csv("sueldos.csv")
     st.session_state['sueldos_agrupados_mes_ano'].to_csv("sueldos_agrupados_mes_ano.csv")
+    st.session_state['sueldos_agrupados_mes_ano']['media_12']=st.session_state['sueldos_agrupados_mes_ano'].val_abs_usd_ccl.rolling(12).mean()
+    st.session_state['sueldos_agrupados_mes_ano']['media_6']=st.session_state['sueldos_agrupados_mes_ano'].val_abs_usd_ccl.rolling(12).mean()
+    st.session_state['sueldos_agrupados_mes_ano']['media_3']=st.session_state['sueldos_agrupados_mes_ano'].val_abs_usd_ccl.rolling(12).mean()
+    
+    
+    
+    st.session_state['mejor_ano']=st.session_state['sueldos_agrupados_mes_ano'].groupby('ano')['val_abs_usd_ccl'].sum()
+    st.session_state['mejor_ano']=st.session_state['mejor_ano'].reset_index()
+    st.session_state['mejor_ano'].columns=['ano','val_abs_usd_ccl']
+    
+    st.session_state['mejor_mes']=st.session_state['sueldos_agrupados_mes_ano'].groupby('mes')['val_abs_usd_ccl'].sum()
+    st.session_state['mejor_mes']=st.session_state['mejor_mes'].reset_index()
+    st.session_state['mejor_mes'].columns=['mes','val_abs_usd_ccl']
+    
+    
+    st.session_state['pivot'] = st.session_state['sueldos'].groupby(['ano', 'mes'], as_index=False)[
+                'val_abs_usd_ccl'].sum()
+    st.session_state['pivot']['val_abs_usd_ccl'] = st.session_state['pivot']['val_abs_usd_ccl'].round()
+    st.session_state['pivot'] = st.session_state['pivot'].pivot(index='mes', columns='ano',
+                        values='val_abs_usd_ccl')
+    
