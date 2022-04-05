@@ -1,16 +1,10 @@
-from funciones_para_datasets import   procesa_cotizacion 
-
-
+import funciones_para_datasets.procesa_cotizacion
 import pandas as pd
-#import urllib
-#import re
 import datetime as dt
 from datetime import date
-
 import numpy as np
-#import yfinance as yf
-#from pandas_datareader import data as pdr
 import pathlib
+import streamlit as st
 
 
 def proceso():
@@ -19,11 +13,11 @@ def proceso():
 
     DATA_PATH = PATH.joinpath("../datasets").resolve()
 
-    datos_sin_procesar = pd.read_csv(
-        (DATA_PATH.joinpath("./mov.csv").resolve()), sep=';')
+    datos_sin_procesar = st.session_state['dataframe_original']
+    #datos_sin_procesar = pd.read_csv(        (DATA_PATH.joinpath("./mov.csv").resolve()), sep=';')
 
-    meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
-             "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+    st.session_state['meses_del_ano'] = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
+                                         "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
 
     datos = datos_sin_procesar.copy()
 
@@ -44,18 +38,20 @@ def proceso():
 
     anos = range(datos.fecha.iloc[-1].year, datos.fecha.iloc[0].year)
 
-    procesa_cotizacion.proceso(datos.fecha.iloc[-1])
-    dol = pd.read_excel((DATA_PATH.joinpath("./dolar.xlsx")
-                         ).resolve(), sheet_name="cotizacion")
-    datos_ccl = pd.read_excel(
+    # procesa_cotizacion.proceso(datos.fecha.iloc[-1])
+
+    ''' dol = pd.read_excel((DATA_PATH.joinpath("./dolar.xlsx")
+                         ).resolve(), sheet_name="cotizacion") '''
+
+    #st.session_state['datos_ccl'] = datos_ccl
+    #st.session_state['datos_ccl_mensual'] = datos_ccl_mensual
+
+    ''' datos_ccl = pd.read_excel(
         (DATA_PATH.joinpath("./dolar.xlsx")).resolve(), sheet_name="datos_ccl")
     datos_ccl_mensual = pd.read_excel(
-        (DATA_PATH.joinpath("./dolar.xlsx")).resolve(), sheet_name="datos_ccl_mensual")
+        (DATA_PATH.joinpath("./dolar.xlsx")).resolve(), sheet_name="datos_ccl_mensual") '''
 
-    #datasets_adicionales.descarga_datasets(datos.fecha.iloc[-1])
-
-    meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
-             "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+    # datasets_adicionales.descarga_datasets(datos.fecha.iloc[-1])
 
     conceptos = []
 
@@ -89,7 +85,7 @@ def proceso():
                                                                             "compra/venta de moneda extranjera", datos.descripcion
                                                                         )))))))))
 
-    dolares = dol.copy()
+    ''' dolares = dol.copy()
 
     datos_final = pd.merge(datos, dolares, on='fecha', how='inner')
 
@@ -117,12 +113,14 @@ def proceso():
 
     dias = datos_final['fecha'].dt.day.unique()
     dias.sort()
-    dias = dias.tolist()
+    dias = dias.tolist() '''
+    
+    datos_final = pd.merge(
+        datos, st.session_state['datos_ccl'], on='fecha', how='inner')
 
-    datos_final = pd.merge(datos_final, datos_ccl, on='fecha', how='outer')
-
+    
     datos_final['ccl'] = datos_final['ccl'].fillna(method='bfill')
-
+    datos_final = datos_final.fillna(0)
     datos_final = datos_final.dropna()
 
     datos_final['debito_usd_ccl'] = round(
@@ -130,23 +128,16 @@ def proceso():
     datos_final['credito_usd_ccl'] = round(
         datos_final['credito'] / datos_final['ccl'], 2)
 
-    datos_final = datos_final.fillna(0)
-
     datos_final['val_abs_usd_ccl'] = datos_final['credito_usd_ccl'] + \
         datos_final['debito_usd_ccl']
 
+    #datos_final = datos_final.set_index('fecha')
+
+    datos_final['ano'] = pd.DatetimeIndex(datos_final['fecha']).year
+    datos_final['mes'] = pd.DatetimeIndex(datos_final['fecha']).month
     datos_final = datos_final.set_index('fecha')
-    datos_final['ano'] = datos_final.index.year
-    datos_final['mes'] = datos_final.index.month
-
-    datos_final = datos_final.sort_values(by='fecha')
-
-    datos_final.to_csv((DATA_PATH.joinpath("./datos_procesados.csv")))
-
-    return
-
-
-def proceso_completo():
-    proceso()
+    datos_final = datos_final.sort_values(by='fecha')    
+    st.session_state['datos_procesados']=datos_final
+    st.dataframe(st.session_state['datos_procesados'])
     
-
+   
