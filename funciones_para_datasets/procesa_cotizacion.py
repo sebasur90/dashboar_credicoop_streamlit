@@ -15,23 +15,25 @@ DATA_PATH = PATH.joinpath("../datasets").resolve()
 
 def proceso(fecha_inicio_dataset_credicoop):
 
-    url = "https://www.bcra.gob.ar/Pdfs/PublicacionesEstadisticas/com3500.xls"
+    ''' url = "https://www.bcra.gob.ar/Pdfs/PublicacionesEstadisticas/com3500.xls"
     urllib.request.urlretrieve(
-        url, (DATA_PATH.joinpath("./dolar.xlsx"))) 
-        
-    st.session_state['cotizacion'] = pd.read_excel((DATA_PATH.joinpath("./dolar.xlsx")))
-    
+        url, (DATA_PATH.joinpath("./dolar.xlsx")))
+
+    st.session_state['cotizacion'] = pd.read_excel(
+        (DATA_PATH.joinpath("./dolar.xlsx")))
 
     st.session_state['cotizacion'] = st.session_state['cotizacion'].drop(
         ["Unnamed: 0", "Unnamed: 1", "Unnamed: 4", "Unnamed: 5"], axis=1)
 
-    st.session_state['cotizacion'] = st.session_state['cotizacion'].drop(range(0, 3), axis=0)
+    st.session_state['cotizacion'] = st.session_state['cotizacion'].drop(
+        range(0, 3), axis=0)
 
     st.session_state['cotizacion'].columns = ['fecha', 'cotizacion']
 
-    st.session_state['cotizacion']['fecha'] = pd.to_datetime(st.session_state['cotizacion']['fecha'], format='%Y%m%d')
+    st.session_state['cotizacion']['fecha'] = pd.to_datetime(
+        st.session_state['cotizacion']['fecha'], format='%Y%m%d') '''
 
-    #yf.pdr_override()
+    # yf.pdr_override()
 
     start = fecha_inicio_dataset_credicoop
 
@@ -68,13 +70,6 @@ def proceso(fecha_inicio_dataset_credicoop):
 
     datos_ccl_mensual = datos_ccl_mensual.groupby(
         ['ano', 'mes'], as_index=False)['ccl'].mean()
-    
-    
-    st.session_state['datos_ccl']=datos_ccl
-    st.session_state['datos_ccl_mensual']=datos_ccl_mensual
-    
 
-
-
-
-
+    st.session_state['datos_ccl'] = datos_ccl
+    st.session_state['datos_ccl_mensual'] = datos_ccl_mensual
