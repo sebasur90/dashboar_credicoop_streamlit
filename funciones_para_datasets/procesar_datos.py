@@ -19,6 +19,10 @@ def proceso():
     st.session_state['meses_del_ano'] = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio",
                                          "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
 
+    st.session_state['meses_del_ano_numeros']=[1,2,3,4,5,6,7,8,9,10,11,12]
+
+    st.session_state['anos']=[2018,2019,2020,2021,2022]
+
     datos = datos_sin_procesar.copy()
 
     # paso a minuscula las columnas y la info la descripcion
@@ -68,22 +72,12 @@ def proceso():
                                               np.where(datos.descripcion.str.contains(
                                                   "debito/credito automatico-tarjeta visa"), "visa",
                                                   np.where(datos.descripcion.str.contains("cajero automatico"),
-                                                           "retiro de cajero automatico",
-                                                           np.where(datos.descripcion.str.contains(
-                                                                    "debito/cred aut-segurcoop seg. empleado segur.empl. comb.fam"),
-                                                                    "seguro de incendio",
-                                                                    np.where(datos.descripcion.str.contains(
-                                                                        "debito/cred aut-segurcoop seg. empleado"),
-                                                               "seguro de incendio",
-                                                               np.where(
-                                                                        datos.descripcion.str.contains(
-                                                                            "debito/cred aut-segurcoop seg. empleado segur.empl. autos"),
-                                                                        "seguro auto",
+                                                           "retiro de cajero automatico",                                                               
                                                                         np.where(
                                                                             datos.descripcion.str.contains(
                                                                                 "compra/venta de moneda extranjera"),
                                                                             "compra/venta de moneda extranjera", datos.descripcion
-                                                                        )))))))))
+                                                                        ))))))
 
     ''' dolares = dol.copy()
 
@@ -137,7 +131,13 @@ def proceso():
     datos_final['mes'] = pd.DatetimeIndex(datos_final['fecha']).month
     datos_final = datos_final.set_index('fecha')
     datos_final = datos_final.sort_values(by='fecha')    
+    datos_final['val_abs']=abs(datos_final['credito'] + datos_final['debito'] )
     st.session_state['datos_procesados']=datos_final
     st.dataframe(st.session_state['datos_procesados'])
     
+    st.session_state['sueldos']=st.session_state['datos_procesados'][st.session_state['datos_procesados'].concepto =='acreditacion de sueldos ' ]
+    st.session_state['sueldos_agrupados_mes_ano']=st.session_state['sueldos'].groupby(['ano','mes'])['val_abs','val_abs_usd_ccl'].sum().reset_index()
    
+    datos_final.to_csv("datos_2.csv")
+    st.session_state['sueldos'].to_csv("sueldos.csv")
+    st.session_state['sueldos_agrupados_mes_ano'].to_csv("sueldos_agrupados_mes_ano.csv")

@@ -8,11 +8,14 @@ import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
 from funciones_para_datasets import procesa_cotizacion
+from funciones_para_datasets import procesar_datos
+from paginas.pagina_ingresos import pagina_ingresos_funcion
+
 
 def main():
     pages = {
         "Home": page_home,
-        # "Carga datos":principal_datos,
+        "pagina_ingresos":pagina_ingresos_funcion,
         # "Preprocesamiento": prepro,
         # "PCA":page_pca,
         # "Random forest":random_forest,
@@ -51,7 +54,9 @@ def page_home():
         procesa_cotizacion.proceso(str(st.session_state['dataframe_original']['FECHA'].iloc[-1]))
         st.write(st.session_state['datos_ccl'])
         st.write(st.session_state['datos_ccl_mensual'])
+        procesar_datos.proceso()
         
+
 
     col1, col2 = st.columns(2)
 
