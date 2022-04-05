@@ -6,12 +6,12 @@ import streamlit as st
 #from paginas.pag_knn import page_knn
 #from paginas.pag_principal_datos import principal_datos
 import streamlit.components.v1 as components
-
+import pandas as pd
+from funciones_para_datasets import procesa_cotizacion
 
 def main():
     pages = {
         "Home": page_home,
-
         # "Carga datos":principal_datos,
         # "Preprocesamiento": prepro,
         # "PCA":page_pca,
@@ -39,7 +39,19 @@ def main():
 
 
 def page_home():
-    st.title("Modelos de machine learning2")
+    st.title("Dashboard Credicoop")
+    uploaded_file = st.file_uploader("Choose a file")
+    if uploaded_file is not None:        
+
+        # Can be used wherever a "file-like" object is accepted:
+        st.session_state['dataframe_original'] = pd.read_csv(uploaded_file,sep =';')
+
+        st.dataframe(st.session_state['dataframe_original'].head())
+        #st.write(st.session_state['dataframe_original']['FECHA'].iloc[-1])
+        procesa_cotizacion.proceso(str(st.session_state['dataframe_original']['FECHA'].iloc[-1]))
+        st.write(st.session_state['datos_ccl'])
+        st.write(st.session_state['datos_ccl_mensual'])
+        
 
     col1, col2 = st.columns(2)
 

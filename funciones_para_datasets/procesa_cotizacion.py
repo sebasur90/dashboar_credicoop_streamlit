@@ -1,10 +1,12 @@
-import pandas as pd
+import datetime as dt
+import pathlib
 import urllib
 import urllib.request
-import pathlib
-import datetime as dt
-from pandas_datareader import data as pdr
 
+import pandas as pd
+import streamlit as st
+from pandas_datareader import data as pdr
+#import xlrd
 
 PATH = pathlib.Path(__file__).parent
 
@@ -16,24 +18,25 @@ def proceso(fecha_inicio_dataset_credicoop):
     url = "https://www.bcra.gob.ar/Pdfs/PublicacionesEstadisticas/com3500.xls"
     urllib.request.urlretrieve(
         url, (DATA_PATH.joinpath("./dolar.xlsx"))) 
-    cotizacion = pd.read_excel((DATA_PATH.joinpath("./dolar.xlsx")))
+        
+    st.session_state['cotizacion'] = pd.read_excel((DATA_PATH.joinpath("./dolar.xlsx")))
     
 
-    cotizacion = cotizacion.drop(
+    st.session_state['cotizacion'] = st.session_state['cotizacion'].drop(
         ["Unnamed: 0", "Unnamed: 1", "Unnamed: 4", "Unnamed: 5"], axis=1)
 
-    cotizacion = cotizacion.drop(range(0, 3), axis=0)
+    st.session_state['cotizacion'] = st.session_state['cotizacion'].drop(range(0, 3), axis=0)
 
-    cotizacion.columns = ['fecha', 'cotizacion']
+    st.session_state['cotizacion'].columns = ['fecha', 'cotizacion']
 
-    cotizacion['fecha'] = pd.to_datetime(cotizacion['fecha'], format='%Y%m%d')
+    st.session_state['cotizacion']['fecha'] = pd.to_datetime(st.session_state['cotizacion']['fecha'], format='%Y%m%d')
 
     #yf.pdr_override()
 
     start = fecha_inicio_dataset_credicoop
 
     now = dt.datetime.now()
-
+    print(now)
     df_peso = pdr.get_data_yahoo("ggal.ba", start, now)
 
     df_dolar = pdr.get_data_yahoo("ggal", start, now)
@@ -65,13 +68,13 @@ def proceso(fecha_inicio_dataset_credicoop):
 
     datos_ccl_mensual = datos_ccl_mensual.groupby(
         ['ano', 'mes'], as_index=False)['ccl'].mean()
+    
+    
+    st.session_state['datos_ccl']=datos_ccl
+    st.session_state['datos_ccl_mensual']=datos_ccl_mensual
+    
 
-    with pd.ExcelWriter((DATA_PATH.joinpath("./dolar.xlsx"))) as writer:
-        cotizacion.to_excel(writer, sheet_name='cotizacion'),
-        datos_ccl.to_excel(writer, sheet_name='datos_ccl'),
-        datos_ccl_mensual.to_excel(writer, sheet_name='datos_ccl_mensual')
 
-    return cotizacion, datos_ccl, datos_ccl_mensual
 
 
 
