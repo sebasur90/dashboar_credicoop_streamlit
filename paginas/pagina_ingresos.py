@@ -23,19 +23,21 @@ def pagina_ingresos_funcion():
            
                         
             st.session_state['ano_inicio'], st.session_state['ano_fin'] = st.select_slider(
-            'Select a range of color wavelength',
+            'Seleccionar años ',
             options=st.session_state['anos'],
             value=(st.session_state['anos'][0], st.session_state['anos'][-1]))
             st.write('Seleccionaste los años entre ', st.session_state['ano_inicio'], 'y', st.session_state['ano_fin'])
             
         datos_importantes(st.session_state['moneda'])    
+        ing_media()
         grafico_sueldos_agrupados()
         graf_mejor_ano()
         graf_mejor_mes()
         graf_mapacalor()
         graf_cuadro_ingreso()           
         ing_repetidos()
-        ing_media()
+        sueldos_ordenados()
+        
 
 
 
@@ -47,25 +49,25 @@ def datos_importantes(mon):
     st.session_state['datos_imp_anteultimo_sueldo']=int(filtro_sueldo[mon].iloc[-2] )      
     variacion_ultimo_sueldo=st.session_state['datos_imp_ultimo_sueldo']/st.session_state['datos_imp_anteultimo_sueldo']-1
     
-    st.session_state['datos_imp_sueldos_totales_ultimo_ano']=st.session_state['sueldos_agrupados_ano'][st.session_state['sueldos_agrupados_ano'].ano==st.session_state['sueldos_agrupados_ano'].ano.iloc[-1]][mon]
+    st.session_state['datos_imp_sueldos_totales_ultimo_ano']=st.session_state['sueldos_agrupados_ano'][st.session_state['sueldos_agrupados_ano'].ano==st.session_state['sueldos_agrupados_ano'].ano.iloc[-1]][mon].iloc[0]
     
-    st.session_state['datos_imp_sueldos_totales_anteultimo_ano']=st.session_state['sueldos_agrupados_ano'][st.session_state['sueldos_agrupados_ano'].ano==st.session_state['sueldos_agrupados_ano'].ano.iloc[-2]][mon]
+    st.session_state['datos_imp_sueldos_totales_anteultimo_ano']=st.session_state['sueldos_agrupados_ano'][st.session_state['sueldos_agrupados_ano'].ano==st.session_state['sueldos_agrupados_ano'].ano.iloc[-2]][mon].iloc[0]
     variacion_sueldo_ultimo_ano=st.session_state['datos_imp_sueldos_totales_ultimo_ano']/st.session_state['datos_imp_sueldos_totales_anteultimo_ano']-1
-    
+   
     
     
     col1, col2  = st.columns(2)
     col1.metric(label="Total datos", value=len(dataframe_datos))    
-    col2.metric(label="Total ingresos" ,value=f"{st.session_state['datos_imp_sueltos_historicos_totales']:,.0f}")
+    col2.metric(label=f"Total ingresos ({filtro_sueldo.ano.iloc[0]}-{filtro_sueldo.ano.iloc[-1]} )" ,value=f"{st.session_state['datos_imp_sueltos_historicos_totales']:,.0f}")
     
     col3, col4  = st.columns(2)
     col3.metric(label="Total datos", value=len(dataframe_datos))    
-    col4.metric(label="Ultimo sueldo" ,value=f"{st.session_state['datos_imp_ultimo_sueldo']:,.0f}",delta=round(variacion_ultimo_sueldo, 2))
+    col4.metric(label=f"Ultimo sueldo ({filtro_sueldo.mes.iloc[-1]}/{filtro_sueldo.ano.iloc[-1]}) " ,value=f"{st.session_state['datos_imp_ultimo_sueldo']:,.0f}",delta=f"{round(variacion_ultimo_sueldo,1)*100}%")
     
     
     col5, col6  = st.columns(2)
-    col5.metric(label="Total datos", value=len(dataframe_datos))    
-    col6.metric(label="Ultimo sueldo" ,value=f"{st.session_state['datos_imp_sueldos_totales_ultimo_ano']:,.0f}",delta=round(variacion_sueldo_ultimo_ano, 2))
+    col5.metric(label="Total datos", value=len(dataframe_datos))        
+    col6.metric(label=f"Ultimo sueldo anual ( {st.session_state['ultimo_ano']})" ,value=f"{st.session_state['datos_imp_sueldos_totales_ultimo_ano']:,.0f}",delta=f"{round(variacion_sueldo_ultimo_ano,1)*100}%")
     
      
             
@@ -188,3 +190,30 @@ def ing_media():
     st.plotly_chart(fig)
 
 
+def sueldos_ordenados():
+    import plotly.express as px
+    from plotly.subplots import make_subplots
+    import plotly.graph_objects as go
+    filtro = st.session_state['sueldos_agrupados_mes_ano']
+    colores=['rgb(158,202,225)'for x in range(len(filtro.index))]
+    
+    filtro["ranking_dolar"]=filtro.val_abs_usd_ccl.rank(ascending=False)
+    filtro["ranking_peso"]=filtro.val_abs.rank(ascending=False)
+    filtro['colores']=colores
+    filtro.colores.iloc[-1]="crimson"
+    
+    ranking=filtro.sort_values(by='ranking_dolar')
+    lista_fechas_str=[f"{x[0]}/{x[1]}" for x in  zip(ranking.mes,ranking.ano)]
+    ranking['orden']=lista_fechas_str
+    
+    if st.session_state['moneda']=="val_abs_usd_ccl":  
+        fig=px.bar(ranking, x='ranking_dolar', y=st.session_state['moneda'], text="orden", color=ranking.colores)
+        fig.update_yaxes(title="Dolares")
+    
+    else:    
+        fig=px.bar(ranking, x='ranking_peso', y=st.session_state['moneda'], text="orden", color=ranking.colores)
+        fig.update_yaxes(title="Dolares")
+    fig.update_xaxes(showticklabels=False ,title="Sueldos ordenados por importancia")
+    fig.update_layout(showlegend=False) 
+    fig.update_layout(width=1100)
+    st.plotly_chart(fig)
