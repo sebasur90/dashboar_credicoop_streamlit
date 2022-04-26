@@ -83,7 +83,7 @@ def proceso():
     datos_final = datos_final.sort_values(by='fecha')    
     datos_final['val_abs']=abs(datos_final['credito'] + datos_final['debito'] )
     st.session_state['datos_procesados']=datos_final
-    st.session_state['datos_procesados'].to_csv("datos_proc.csv")
+    
     
     
     st.session_state['sueldos']=st.session_state['datos_procesados'][st.session_state['datos_procesados'].concepto =='acreditacion de sueldos ' ]
