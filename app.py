@@ -10,12 +10,14 @@ import pandas as pd
 from funciones_para_datasets import procesa_cotizacion
 from funciones_para_datasets import procesar_datos
 from paginas.pagina_ingresos import pagina_ingresos_funcion
+from paginas.pagina_egresos import pagina_egresos_funcion
 from paginas.pagina_movimientos import pagina_movimientos_funcion
 
 def main():
     pages = {
-        "Home": page_home,
-        "pagina_ingresos":pagina_ingresos_funcion,
+        "Principal": page_home,
+        "Ingresos":pagina_ingresos_funcion,
+        "Egresos":pagina_egresos_funcion,
         "Movimientos": pagina_movimientos_funcion,
         # "PCA":page_pca,
         # "Random forest":random_forest,
@@ -36,14 +38,14 @@ def main():
         })
 
     with st.sidebar:
-        page = st.radio("Select your page", tuple(pages.keys()))
+        page = st.radio("Seleccionar pagina", tuple(pages.keys()))
 
     pages[page]()
 
 
 def page_home():
-    st.title("Dashboard Credicoop")
-    uploaded_file = st.file_uploader("Choose a file")
+    st.title("Banco Credicoop Dashboard ")
+    uploaded_file = st.file_uploader("Cargar archivo de movimientos de cuenta")
     if uploaded_file is not None:        
         with st.spinner('Por favor esperar el procesamiento...'):               
 
@@ -51,13 +53,16 @@ def page_home():
             procesa_cotizacion.proceso(str(st.session_state['dataframe_original']['FECHA'].iloc[-1]))       
             procesar_datos.proceso()
             st.success('Listo')
-            col1, col2, col3 = st.columns(3)
-            col1.metric(label="Total datos", value=len(st.session_state['dataframe_original']))
-            #col1.metric("Temperature", "70 °F", "1.2 °F")
-            col2.metric("Wind", "9 mph", "-8%")
-            col3.metric("Humidity", "86%", "4%")
+            
+            st.metric(label="Total datos", value=len(st.session_state['dataframe_original']))
+          
+    
+    else:        
 
+        video_file = open('myvideo.mp4', 'rb')
+        video_bytes = video_file.read()
 
+        st.video(video_bytes)
     
 
 
