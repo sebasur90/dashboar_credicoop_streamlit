@@ -53,35 +53,7 @@ def proceso():
                                                                             "compra/venta de moneda extranjera", datos.descripcion
                                                                         ))))))))))
 
-    ''' dolares = dol.copy()
-
-    datos_final = pd.merge(datos, dolares, on='fecha', how='inner')
-
-    datos_final['debito_usd'] = datos_final['debito'] / \
-        datos_final['cotizacion']
-    datos_final['credito_usd'] = datos_final['credito'] / \
-        datos_final['cotizacion']
-
-    datos_final = datos_final.fillna(0)
-
-    datos_final['val_abs'] = datos_final['credito'] + datos_final['debito']
-    datos_final['val_abs_usd'] = datos_final['credito_usd'] + \
-        datos_final['debito_usd']
-
-    conceptos = datos_final['concepto'].unique()
-    conceptos.sort()
-
-    anos = datos_final['fecha'].dt.year.unique()
-    anos = anos.tolist()
-    anos.sort()
-
-    meses = datos_final['fecha'].dt.month.unique()
-    meses.sort()
-    meses = meses.tolist()
-
-    dias = datos_final['fecha'].dt.day.unique()
-    dias.sort()
-    dias = dias.tolist() '''
+    
     
     datos_final = pd.merge(
         datos, st.session_state['datos_ccl'], on='fecha', how='inner')
@@ -99,7 +71,7 @@ def proceso():
     datos_final['val_abs_usd_ccl'] = datos_final['credito_usd_ccl'] + \
         datos_final['debito_usd_ccl']
 
-    #datos_final = datos_final.set_index('fecha')
+    
 
     datos_final['ano'] = pd.DatetimeIndex(datos_final['fecha']).year
     
@@ -117,9 +89,9 @@ def proceso():
     st.session_state['sueldos']=st.session_state['datos_procesados'][st.session_state['datos_procesados'].concepto =='acreditacion de sueldos ' ]
     st.session_state['sueldos_agrupados_mes_ano']=st.session_state['sueldos'].groupby(['ano','mes'])['val_abs','val_abs_usd_ccl'].sum().reset_index()
    
-    datos_final.to_csv("datos_2.csv")
-    st.session_state['sueldos'].to_csv("sueldos.csv")
-    st.session_state['sueldos_agrupados_mes_ano'].to_csv("sueldos_agrupados_mes_ano.csv")
+    
+    
+    
     st.session_state['sueldos_agrupados_mes_ano']['media_12_usd']=st.session_state['sueldos_agrupados_mes_ano'].val_abs_usd_ccl.rolling(12).mean()
     st.session_state['sueldos_agrupados_mes_ano']['media_6_usd']=st.session_state['sueldos_agrupados_mes_ano'].val_abs_usd_ccl.rolling(12).mean()
     st.session_state['sueldos_agrupados_mes_ano']['media_3_usd']=st.session_state['sueldos_agrupados_mes_ano'].val_abs_usd_ccl.rolling(12).mean()
@@ -137,7 +109,7 @@ def proceso():
     
     if len(st.session_state['sueldos_agrupados_mes_ano'][st.session_state['sueldos_agrupados_mes_ano'].ano == st.session_state['sueldos_agrupados_mes_ano'].ano.sort_values().iloc[0]]) <12:
         st.session_state['mejor_ano']=st.session_state['mejor_ano'][st.session_state['mejor_ano'].ano >st.session_state['sueldos_agrupados_mes_ano'].ano.sort_values().iloc[0]]
-    #st.session_state['mejor_ano'][st.session_state['mejor_ano'].ano > st.session_state['mejor_ano'].ano.sort_values().iloc[0]]
+    
      
     
     st.session_state['mejor_mes']=st.session_state['sueldos_agrupados_mes_ano'].groupby('mes')['val_abs_usd_ccl','val_abs'].sum()
@@ -187,4 +159,4 @@ def proceso():
     st.session_state['peor_mes']=st.session_state['gastos_agrupados_mes_ano'].groupby('mes')['val_abs_usd_ccl','val_abs'].sum()
     st.session_state['peor_mes']=st.session_state['peor_mes'].reset_index()
     st.session_state['peor_mes'].columns=['mes','val_abs_usd_ccl','val_abs']     
-    st.session_state['gastos_tarjetas'].to_csv("gastos_tarjetas.csv")
+   
