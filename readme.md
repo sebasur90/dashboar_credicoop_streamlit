@@ -1,0 +1,1 @@
+![Alt Text](./funcionamiento_webapp.gif)
