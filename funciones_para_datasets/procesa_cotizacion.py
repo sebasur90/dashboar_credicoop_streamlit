@@ -5,24 +5,34 @@ import urllib.request
 
 import pandas as pd
 import streamlit as st
-from pandas_datareader import data as pdr
+#from pandas_datareader import data as pdr
 #import xlrd
+import yfinance as yf
 
 PATH = pathlib.Path(__file__).parent
 
 DATA_PATH = PATH.joinpath("../datasets").resolve()
 
+from datetime import datetime
+
+# Convertir la cadena "20190603" en un objeto datetime
+
 
 def proceso(fecha_inicio_dataset_credicoop):
 
 
-    start = fecha_inicio_dataset_credicoop
+   
+    start = datetime.strptime(fecha_inicio_dataset_credicoop, "%Y%m%d")
 
     now = dt.datetime.now()
     
-    df_peso = pdr.get_data_yahoo("ggal.ba", start, now)
+    #df_peso = pdr.get_data_yahoo("ggal.ba", start, now)
 
-    df_dolar = pdr.get_data_yahoo("ggal", start, now)
+    #df_dolar = pdr.get_data_yahoo("ggal", start, now)
+    
+    df_peso = yf.download('ggal.ba', start=start, end=now, progress=False)
+    
+    df_dolar = yf.download('ggal', start=start, end=now, progress=False)
 
     df_peso = df_peso.reset_index()
 
